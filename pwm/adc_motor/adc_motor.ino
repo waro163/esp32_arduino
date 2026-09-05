@@ -43,9 +43,11 @@ void setup() {
   // 计算单位变化对应的占空比增量
   dutyUnit = (float)(dutyMax - dutyMin) /  (4095-middleValue);
 
-  // 初始化 PWM 通道并绑定引脚
-  ledcSetup(ledcChannel, freq, resolution);
-  ledcAttachPin(escPin, ledcChannel);
+  // 初始化 PWM 通道并绑定引脚，2.x库的使用方法
+  // ledcSetup(ledcChannel, freq, resolution);
+  // ledcAttachPin(escPin, ledcChannel);
+  // 3.x库的使用方法
+  ledcAttachChannel(escPin, freq, resolution, ledcChannel);
 
   // 发送最低油门信号以解锁电调
   Serial.println("正在发送最低油门，解锁电调...");
@@ -75,12 +77,15 @@ void loop() {
   if (midDiff >= THRESHOLD) {
     int dutyNow = dutyMin + midDiff * dutyUnit;
     if (dutyNow > dutyMax) dutyNow = dutyMax;
-    ledcWrite(ledcChannel, dutyNow);
+    // ledcWrite(ledcChannel, dutyNow);//2.x库的用法
+    ledcWrite(escPin, dutyNow);//3.x 库的使用方法
     // Serial.printf("now is: %d\n",dutyNow);
   } 
   else {
-    ledcWrite(ledcChannel, dutyMin);
+    // ledcWrite(ledcChannel, dutyMin);
+    ledcWrite(escPin, dutyMin);
     // Serial.println("min duty");
+    
   }
   lastValue = current;
   delay(10); 
